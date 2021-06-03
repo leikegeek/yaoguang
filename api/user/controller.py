@@ -19,6 +19,10 @@ def before_request():
     """请求预处理"""
     ...
 
+class User(Resource):
+    def post(self):
+        data = add_parser.parse_args(strict=True)
 
 
+api.add_resource(User, '')
 
