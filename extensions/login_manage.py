@@ -10,7 +10,7 @@ import hashlib
 import os
 import time
 
-from flask import current_app, request, session
+from flask import current_app, request, session, redirect
 from flask_login import LoginManager, login_user, logout_user
 from flask_restful import marshal, fields
 from .db import cache
@@ -33,3 +33,29 @@ REDIS_KEY_NONCE = 'YG:APINONCE:%s'
 NONCE_EXPIRE = 30
 
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    current_app.logger.info(' not login')
+    if(
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or
+        login_manager.err_message
+    ):
+        if login_manager.err_message:
+            return marshal({'message': login_manager.err_message}, login_item), 400
+        return marshal({'url': 'https://login'}, login_item), 401
+
+    return redirect('https://login')
+
+
+@login_manager.request_loader
+def request_loader(req):
+    auth_header = req.headers.get('Authorization')
+    if not auth_header:
+        return
+    current_app.logger.info(f'Request Headers:{req.headers}')
+    try:
+        timestamp = req.headers.get('X-YG-Time')
+        nonce = req.headers.get('X-YG-Nonce')
+        key = REDIS_KEY_NONCE % nonce
+        _, auth_str = auth_header.split()
+        app_id, signature = base64.b64decode(auth_str).decode().split(':')
