@@ -14,6 +14,7 @@ from flask import current_app, request, session, redirect
 from flask_login import LoginManager, login_user, logout_user
 from flask_restful import marshal, fields
 from .db import cache
+from model.user import User
 
 
 class CustomLoginManager(LoginManager):
@@ -45,6 +46,20 @@ def unauthorized():
         return marshal({'url': 'https://login'}, login_item), 401
 
     return redirect('https://login')
+
+@login_manager.user_loader
+def load_user(uid):
+    if cache.cache.get(session.get('_identify')):
+        return
+    user = User.get_by_ad(uid)
+    if user:
+        return CurrentUser(user.username, user)
+
+
+def user_logged(app, **kwargs):
+    m = hashlib.sha256(os.urandom(16))
+    m.update(str(int(time.time() * 1000))).encode()
+    session['_identify'] = m.hexdigest()
 
 
 @login_manager.request_loader
