@@ -61,16 +61,3 @@ def user_logged(app, **kwargs):
     m.update(str(int(time.time() * 1000))).encode()
     session['_identify'] = m.hexdigest()
 
-
-@login_manager.request_loader
-def request_loader(req):
-    auth_header = req.headers.get('Authorization')
-    if not auth_header:
-        return
-    current_app.logger.info(f'Request Headers:{req.headers}')
-    try:
-        timestamp = req.headers.get('X-YG-Time')
-        nonce = req.headers.get('X-YG-Nonce')
-        key = REDIS_KEY_NONCE % nonce
-        _, auth_str = auth_header.split()
-        app_id, signature = base64.b64decode(auth_str).decode().split(':')
