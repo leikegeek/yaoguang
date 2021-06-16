@@ -25,3 +25,19 @@ class User(BaseModel):
 
     @classmethod
     def create(cls, username):
+        exceptions.Assert(not cls.exists(username), exceptions.DuplicationException(identify=username))
+        return super.create(username=username)
+
+    @classmethod
+    def exists(cls, username):
+        return cls.get_by_id(username) is not None
+
+    @classmethod
+    def get_by_id(cls, username, create_ne=False):
+        user = cls.dq().filter(cls.username == username).first()
+        if user:
+            return user
+        if create_ne:
+            return cls.create(username=username)
+
+
