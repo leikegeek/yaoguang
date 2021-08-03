@@ -9,7 +9,7 @@ from flask import Blueprint, make_response
 from flask_login import login_required
 from flask_restful import Api, Resource, marshal
 from model.user import User
-from api.user.schema import add_
+from api.user.schema import list_parser, add_parser
 
 bp = Blueprint('user', __name__, url_prefix='/api/user')
 api = Api(bp)

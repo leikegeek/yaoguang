@@ -30,6 +30,13 @@ user_list_item = {
     'total': fields.Integer,
     'items': fields.String
 }
+"""查询入参校验"""
+list_parser = reqparse.RequestParser(argument_class=CustomArgument, trim=True)
+list_parser.add_argument('index', type=inputs.positive, location='args', default=1)
+list_parser.add_argument('capacity', type=inputs.positive, location='args', default=10)
+list_parser.add_argument('keywords', type=str, location='args')
+"""新增入参校验"""
+add_parser = reqparse.RequestParser(argument_class=CustomArgument, trim=True)
+add_parser.add_argument('username', type=str, location='args', required=True)
 
-list_parse = reqparse.RequestParser(argument_class=CustomArgument, trim=True)
 
