@@ -67,5 +67,13 @@
 
 参考文献：https://forum-zh.obsidian.md
                   https://publish.obsidian.md/chinesehelp
-                  
+
+- Day Planner 甘特图无法展示小方块
+  源代码main.js 里面section 最后的统计时间单位搞错了，应该是m，而插件源代码为mm
+  将源代码的 6098行的中的
+  
+```javascript
+return ', ' + untilNext + 'mm';
+```
+中的 mm 改成 m即可
                   
